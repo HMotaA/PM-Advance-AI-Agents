@@ -28,6 +28,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import anthropic
@@ -127,11 +128,18 @@ def emit_deliverable(which: str, draft: str, *, accepted: bool,
         OUTPUT_DIR.mkdir(exist_ok=True)
         out = OUTPUT_DIR / f"status-update-{which}.md"
         state = "accepted by validator" if accepted else "HELD, escalated"
+        now = datetime.now()
+        iso_year, iso_week, _ = now.isocalendar()
+        # Dedupe stamp (M2 loop-spec §1): one draft per task per ISO week, with the
+        # generation date/time, so Cortex/a human can tell which week a draft is for.
+        week_key = f"{iso_year}-W{iso_week:02d}"
+        stamp = f"<!-- Cortex weekly draft · {which} · {week_key} · generated {now:%Y-%m-%d %H:%M} -->"
         out.write_text(
+            f"{stamp}\n"
             f"<!-- Cortex draft, {state}; NOT posted. Run cost ~ ${cost:.4f}. -->\n"
             f"<!-- {reason} -->\n\n{draft.rstrip()}\n", encoding="utf-8")
         print(f"\nSaved draft -> {out.relative_to(Path(__file__).parent)}  "
-              f"(for your review, nothing was posted)")
+              f"({week_key}, for your review, nothing was posted)")
 
 
 def run(which: str = "happy") -> None:
