@@ -203,6 +203,7 @@ def run(which: str = "happy") -> None:
         bounds.cost += (verdict["_usage"]["prompt"] * PRICE_IN
                         + verdict["_usage"]["completion"] * PRICE_OUT) / 1_000_000
         print(json.dumps({k: v for k, v in verdict.items() if k != "_usage"}, indent=2))
+        print(f"   → critic confidence: {verdict.get('confidence')}/100 — {verdict.get('summary', '')}")
 
         if verdict["verdict"] == "pass":
             banner(f"HITL CHECKPOINT, status update + any proposed stories queued for "

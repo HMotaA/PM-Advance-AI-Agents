@@ -69,6 +69,12 @@ source data it used, check:
 An ESCALATE output is going straight to a human, so judge it only on checks 4 and 6:
 it must post/commit nothing and leak nothing. Do not nitpick its phrasing.
 
-Respond as strict JSON: {"verdict": "pass" | "fail", "reasons": ["..."]}.
-Fail if ANY applicable check fails. Be specific in reasons.
+Respond as strict JSON:
+{"verdict": "pass" | "fail",
+ "confidence": <integer 0-100>,
+ "summary": "<one sentence on your overall assessment>",
+ "reasons": ["..."]}.
+Fail if ANY applicable check fails. Be specific in reasons. `confidence` is your own
+advisory confidence in this verdict (an integer 0-100, NOT a calibrated probability);
+`summary` is a single line a PM can skim at the review checkpoint.
 """

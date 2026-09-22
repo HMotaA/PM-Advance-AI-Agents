@@ -39,6 +39,8 @@ def review(client, model: str, proposed_output: str, source_data: str) -> dict:
     )
     text = "".join(b.text for b in resp.content if b.type == "text")
     verdict = _extract_json(text)
+    verdict.setdefault("confidence", None)  # advisory confidence level (0-100), not a gate
+    verdict.setdefault("summary", "")
     verdict["_usage"] = {"prompt": resp.usage.input_tokens,
                          "completion": resp.usage.output_tokens}
     return verdict
