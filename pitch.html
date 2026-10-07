@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cortex — Pitch</title>
+<style>
+  :root{
+    --bg:#f7f7f5; --card:#ffffff; --ink:#1a1a18; --muted:#5f5f58;
+    --line:#e5e4df; --accent:#b4530a; --good:#2f7d4f; --chip:#f0efea;
+  }
+  :root:not([data-theme="light"]){ @media (prefers-color-scheme:dark){
+    :root{ --bg:#17171a; --card:#1f1f23; --ink:#ececf0; --muted:#a2a2ad; --line:#2e2e34; --accent:#f0954a; --good:#6fd79a; --chip:#26262c; }
+  }}
+  :root[data-theme="dark"]{ --bg:#17171a; --card:#1f1f23; --ink:#ececf0; --muted:#a2a2ad; --line:#2e2e34; --accent:#f0954a; --good:#6fd79a; --chip:#26262c; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:0 16px}
+  .wrap{max-width:860px;margin:0 auto;padding:48px 0}
+  header{border-bottom:3px solid var(--accent);padding-bottom:20px;margin-bottom:8px}
+  h1{font-size:2.1rem;margin:0 0 6px}
+  h2{font-size:1.15rem;margin:0;color:var(--accent);letter-spacing:.02em;text-transform:uppercase}
+  .sub{color:var(--muted);font-size:1.05rem;margin:10px 0 0}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0}
+  section h3{margin:0 0 12px;font-size:1.15rem}
+  .chip{display:inline-block;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:3px 11px;font-size:.82rem;color:var(--muted);margin:0 6px 6px 0}
+  ul{margin:8px 0;padding-left:20px} li{margin:4px 0}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.93rem}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  .k{color:var(--accent);font-weight:600}
+  .good{color:var(--good);font-weight:600}
+  code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:.88em}
+  footer{color:var(--muted);font-size:.85rem;text-align:center;margin:28px 0 8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h2>Agentic Loops for PMs · Capstone</h2>
+    <h1>Cortex — a PM chief-of-staff agent</h1>
+    <p class="sub">Every Friday, Cortex drafts a grounded leadership status update and a capped backlog proposal — validated by an independent critic and <strong>held for human approval. It never posts.</strong></p>
+  </header>
+
+  <section>
+    <h3>The agent line (M1)</h3>
+    <p>Default posture: every action starts <em>above the line</em> (human-owned) and must earn its way below. Enforced in the <strong>tools</strong>, not the prompt — there is no publish/create/merge tool.</p>
+    <span class="chip">Below · pull data</span><span class="chip">Below · draft</span><span class="chip">Below+HITL · propose stories (capped)</span><span class="chip">HITL · tone / commitment</span><span class="chip">Above · post / approve company-wide</span>
+  </section>
+
+  <section>
+    <h3>Loop &amp; team (M2–M3)</h3>
+    <ul>
+      <li><span class="k">Loop:</span> weekly <strong>cron</strong> (Friday 9am), dedupe by project + ISO week. Three exits: success → HITL · stuck → escalate · unsafe → refuse+escalate.</li>
+      <li><span class="k">Team:</span> single agent + <strong>one independent critic</strong> (own context). Fail-action <code>revise → escalate</code>, hard cap <strong>2 revisions</strong>. Critic emits an advisory confidence level (0–100).</li>
+    </ul>
+  </section>
+
+  <section>
+    <h3>Memory &amp; grounding (M4)</h3>
+    <p>Retrieve the large/volatile sources (activity, roadmap, past updates) with agentic moves (self-verification, document-grading, routing); hold the small/stable ones (task, norms) in context. Every claim traces to pulled data — withhold a source and Cortex <span class="good">refuses instead of inventing</span>.</p>
+  </section>
+
+  <section>
+    <h3>Bounds &amp; evals (M5)</h3>
+    <table>
+      <tr><th>Bound</th><th>Value</th><th>Caps</th></tr>
+      <tr><td>Max iterations</td><td class="k">8 → escalate</td><td>reasoning loop</td></tr>
+      <tr><td>Cost budget</td><td class="k">$0.50/run + ~$5/day</td><td>runaway bill</td></tr>
+      <tr><td>Revision cap</td><td class="k">2 → escalate</td><td>critic↔drafter bounce</td></tr>
+      <tr><td>Queue cap</td><td class="k">10 stories</td><td>over-committing scope</td></tr>
+      <tr><td>Permissions</td><td class="k">no write tools</td><td>unapproved post / leak</td></tr>
+    </table>
+    <p style="margin-top:10px">6 trajectory evals incl. a recovery case and a jailbreak case. Proven live: jailbreak refused + escalated; a bound halting a runaway.</p>
+  </section>
+
+  <section>
+    <h3>Trust ladder &amp; autonomy (M6)</h3>
+    <ul>
+      <li><span class="k">Current rung:</span> assisted / supervised — drafts &amp; proposes, human approves all that leaves.</li>
+      <li><span class="k">Gate to next rung:</span> ≥95% pass (EV-1/2/4) &amp; 0 safety failures over <strong>4 weeks</strong> of supervised runs, replay set green.</li>
+      <li><span class="k">Dial by segment:</span> operator → bounded-autonomous · new eng lead → assisted · exec → shadow (read-only).</li>
+      <li><span class="k">Deploy:</span> managed cron · owner = Engage squad PM · rollback = revert / disable tool / drop a rung · kill = disable cron + revoke key.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h3>What building it taught me</h3>
+    <p><strong>"Capability is not permission"</strong> — and a bound (a cap + an approval gate) is what shrinks blast radius. The line lives in the tools; the bounds live outside the model; the critic is what lets you trust the output without reading every word.</p>
+  </section>
+
+  <footer>Cortex · built with Claude Code on the Anthropic SDK (<code>claude-sonnet-5</code>) · demo runs on mock fixtures · nothing is ever posted.</footer>
+</div>
+</body>
+</html>

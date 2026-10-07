@@ -1,46 +1,47 @@
 # Production & Autonomy: Cortex PM Chief-of-Staff Agent
 
-> Module 6 · ★ Deliverable 5, how you'd ship it, govern it, and widen trust over time
+> Module 6 · ★ Deliverable 5 — how you'd ship it, govern it, and widen trust over time
 >
-> ✅ **What this validates:** you can ship it, govern it, and widen trust deliberately, by the end you'll have proven an autonomy dial, a Trust Ladder rung with its eval gate, and a governance plan.
+> ✅ **What this validates:** an autonomy dial, a Trust Ladder rung with its eval gate, and a governance plan.
 
 ## Autonomy Dial by segment
 
-_Autonomy is a product decision per user, not one global setting._
+_Autonomy is a product decision per user, not one global setting. The dial sets how many **below-the-line** actions still pause at a HITL checkpoint for that user — it never moves the M1 agent line (posting company-wide stays above the line for everyone)._
 
 | Segment | Desired autonomy | Why |
 |---|---|---|
-| _Cautious PM ("Tesla driver")_ | _supervised_ | _wants to review every update before it goes out_ |
-| _High-trust team lead ("Waymo passenger")_ | _bounded-autonomous_ | _happy to let the weekly update assemble itself_ |
+| **Engage squad PM / operator** (built it) | supervised → bounded-autonomous | trusts the weekly draft and can spot a bad one fast; only post/approve pauses |
+| **New eng lead** (update consumer) | assisted | less context on norms — every proposed story still needs explicit approval |
+| **Exec / leadership** (stakeholder) | shadow (read-only) | highest blast radius; only ever sees human-approved output; Cortex never acts for them |
 
 ## Trust Ladder
 
-- **Current rung:** _shadow · assisted · supervised · bounded-autonomous · autonomous_
-- **Eval gate to reach the next rung:** _which M5 evals must pass, at what threshold_
-- **Incident record so far:** _…_
+- **Current rung:** **assisted / supervised** — Cortex drafts and proposes, a human approves everything that leaves, and it has no write tools. Validated on fixtures, not yet on a window of real runs.
+- **Eval gate to reach the next rung (bounded-autonomous, operator segment):** from the M5 suite — **≥95% pass on EV-1 / EV-2 / EV-4 and 0 safety failures (EV-5) over 4 weeks of supervised weekly runs**, with the replay set green on every change. (A number over a window, not "the demo looked great.")
+- **Incident record (clean = eligible):** 0 confidential leaks, 0 unapproved sends, 0 committed dates over that window.
 
 ## Deployment plan
 
-- **Runtime:** _managed agent platform · serverless · self-hosted, and why_
-- **Operator / on-call owner:** _who owns it in production_
-- **Rollback:** _how you turn it off / revert_
-- **Monitoring:** _the dashboard + the signals you watch_
+- **Runtime:** a managed scheduler / serverless **cron** firing the weekly run (ties to the M2 cron loop); always-on not needed.
+- **Operator / on-call owner:** the **Engage squad PM** owns it in production; escalation → **Head of Product** for policy calls, **eng on-call** for pipeline/data failures. (If the builder went on vacation, this doc names who runs it.)
+- **Rollback:** revert the prompt/version, disable a tool, or drop the dial a rung; hard stop = disable the cron + revoke the key.
+- **Monitoring:** eval pass %, escalation rate, cost-to-serve per run, and trust incidents (leaks / unapproved sends / wrong dates).
 
 ## ROI metrics (beyond adoption & tokens)
 
-| Metric | Target |
-|---|---|
-| _Task completion rate_ | _…_ |
-| _Time saved / cost-to-serve_ | _…_ |
-| _Trust incidents_ | _…_ |
+| Metric | Target | How captured |
+|---|---|---|
+| **Outcome** — PM hours saved on status assembly | ≥2 hrs/PM/week | before-after time survey |
+| **Cost-to-serve** — $ per update | < $0.15/update | run cost logs |
+| **Trust incidents** — leaks / unapproved sends / wrong dates | **0** | escalation + audit logs |
 
 ## Widen-autonomy decision rule
 
-_What evidence lets you turn the dial up one notch, stated in advance._
+Turn the dial up one notch for a segment **only after 4 consecutive weeks meeting the eval gate** (≥95% accuracy pass, 0 safety failures, 0 trust incidents) with the replay set green — stated in advance, not decided in the moment.
 
 ## Governance & forward strategy
 
-- **Compliance:** _what data must never enter a prompt; how PII is handled_
-- **Safety:** _which actions stay above the agent line for everyone; kill switch_
-- **Reliability:** _cost/iteration caps; escalate-on-stuck; fallback if the model is down_
-- **Strategy:** _the next segment or capability you'd widen into, and the eval that gates it_
+- **Compliance:** no PII or customer financial data enters a prompt; confidential roadmap items (Orbit/Pulsar) are filtered before drafting.
+- **Safety:** posting / approving a company-wide update stays **above the line for everyone**; kill switch = disable cron + revoke key.
+- **Reliability:** iteration / cost / revision caps (M5); escalate-on-stuck; model-down fallback = retry once, then hold the run + alert the operator.
+- **Strategy:** next widen = auto-drafting for a **second project (P-VEGA)** once Northstar clears the gate; the gate for that expansion is the **same bar on the new project's data** (≥95% / 0 safety / 0 incidents over 4 weeks).

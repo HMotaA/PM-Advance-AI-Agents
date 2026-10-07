@@ -6,14 +6,14 @@
 
 ## What it does
 
-_One paragraph: the agent in action, end to end._
+Cortex is a PM chief-of-staff agent. On a weekly Friday-9am cron, it takes one project (e.g. Northstar / P-NORTH), pulls the real context it needs — project state, recent engineering activity, past updates, roadmap, and team norms — drafts a leadership status update grounded in that pulled data, and proposes a capped batch of next-sprint stories from the PRD. An independent critic validates the draft (grounded claims, no confidential leak, nothing over-committed) before any human sees it. Every run ends at a human-in-the-loop checkpoint: the update and stories are **queued for review, never posted** — Cortex has no publish tool. If data is missing or an injected instruction tries to make it act out of bounds, it refuses and escalates instead of inventing or over-reaching.
 
 ## How you built it
 
-- **Coding agent:** _which one you directed (Claude Code / Cursor / Codex)_
-- **Model + bounds:** _model used, max iterations, cost cap, queue cap_
-- **Repo / config:** _path to your build in `00-build/`_
-- **Live link:** _[shareable URL, optional bonus]_
+- **Coding agent:** Claude Code (desktop), directing edits to `00-build/`.
+- **Model + bounds:** `claude-sonnet-5`; max iterations **8**, revision cap **2**, cost cap **$0.50/run**, story-queue cap **10** — all enforced in `agent.py`, outside the model.
+- **Repo / config:** `00-build/agent.py` (loop) · `critic.py` (independent validator) · `prompts.py` · `tools.py` (read-only tools, no write tools) · `fixtures/` (mock data). Ported from the OpenAI starter to the Anthropic SDK.
+- **Live link:** _n/a (local build)_
 
 ## Screenshots (required, collected M2 to M6)
 
@@ -26,7 +26,7 @@ Real screenshots of *your* Cortex running. These are the `00-build/CORTEX-ANATOM
 | 3 | transcript (M4 evidence ↓) | grounded answer cites pulled activity; withheld-source (`missing-data`) → Cortex refuses/escalates instead of inventing | M4 |
 | 4 | transcript (M5 evidence ↓) | jailbreak: injection detected + refused, Orbit withheld, escalated; critic pass (conf 97) | M5 |
 | 5 | transcript (M5 evidence ↓) | `MAX_ITERATIONS=2` → run halts on the bound (not success); last draft held/escalated | M5 |
-| 6 | _[img]_ | end-to-end run | M6 |
+| 6 | transcript (M6 evidence ↓) | full end-to-end run: 5 reads → propose_stories → draft → critic pass → HITL stop | M6 |
 
 ### M3 evidence — critic rejects a bad draft (transcript)
 
@@ -92,6 +92,22 @@ Why it was held: max iterations (2) reached
 
 What the human sees at the checkpoint is a *held* draft with a clear reason — never a surprise post. What *didn't* happen is the whole point: no company-wide message went out, no embargoed roadmap leaked, no GA date was committed, and no loop ran up a bill — each blocked by a bound enforced outside the model (no publish tool, `MAX_ITERATIONS`, `COST_CAP_USD`), not by trusting the model to behave. The bound I'd tune next is the **per-run cost cap** ($0.50 is generous for a ~$0.05 run); I'd tighten it toward ~$0.15 with the daily account cap as the real backstop, once a week of real runs confirms the typical spend.
 
+### M6 evidence — full end-to-end run (transcript)
+
+*Caption: `python agent.py` end to end — Cortex pulls all five sources, proposes a capped story batch, drafts the grounded Green update, the independent critic passes it (confidence ~95), and the run stops at the HITL checkpoint with the draft saved and stamped `2026-W38`. Nothing posted.*
+
+```
+CORTEX RUN, fixture: task-happy  (auto-queue cap 10 items)
+[step 1] TOOL get_project / get_activity / search_past_updates / get_norms / get_roadmap   (5 reads)
+[step 2] TOOL propose_stories(P-NORTH, 8 stories) -> queued_for_approval (under 10 cap)
+[step 3] PROPOSED OUTPUT: Northstar (P-NORTH) — Green. Shipped #812/#815; #818 open; activation 39%→41%.
+CRITIC: { "verdict": "pass", "confidence": 95, "summary": "grounded, within norms, nothing posted" }
+HITL CHECKPOINT — queued for your review. Nothing posted, no commitments made. Run cost ≈ $0.055
+Saved draft -> run-output/status-update-happy.md  (2026-W38, nothing was posted)
+```
+
 ## How to run it
 
-_Minimal steps for someone to reproduce the demo (env vars, and the command or the coding-agent prompt you used)._
+1. `cd 00-build && pip install -r requirements.txt && cp .env.example .env`
+2. Put a **workspace-scoped** `ANTHROPIC_API_KEY` in `00-build/.env` (gitignored); keep the `CORTEX_COST_CAP_USD` cap and set a matching cap in the Anthropic console.
+3. `python agent.py` (happy path) · `python agent.py missing-data` (escalate) · `python agent.py jailbreak` (refusal) · `CORTEX_MAX_ITERATIONS=2 python agent.py` (bound trip).
